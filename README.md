@@ -13,3 +13,10 @@ and * have the special meanings concatenate, or, and Kleene star respectively.
 For example, the regular expression 0.1 means a 0 followed by a 1, 0|1 means
 a 0 or a 1, and 1* means any number of 1’s. These special characters must
 be used in your submission.
+
+# Steps 
+1. Parse the regular expression from infix to postfix notation.
+2. Build a series of small NFA’s for parts of the regular expression.
+3. Use the smaller NFA’s to create the overall NFA.
+4. Implement the matching algorithm using the NFA
+
