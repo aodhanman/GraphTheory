@@ -1,5 +1,22 @@
-#Aodhan Mannion O'Donnell
+# Aodhan Mannion O'Donnell
 # g00314829
+
+import sys
+
+# User Input
+# https://web.microsoftstream.com/video/65df155a-ac29-460b-869d-2de6ffc6c3fc
+# https://pythonprogramminglanguage.com/input/
+
+# If user included the Regular Expression and String when running the program
+if len(sys.argv) == 3:
+    # Saves the Regular Expression and String entered by the user
+    userin, userstring = "{sys.argv[1]}", "{sys.argv[2]}"
+
+# If Regular Expression and String haven't been entered yet, prompt user for them
+elif len(sys.argv) != 3:
+    userin = input("Enter an Infix Regular Expression (eg a*): ")
+    userstring = input("Enter a String: ")
+
 
 # shunting yard algorithm 
 # https://web.microsoftstream.com/video/cfc9f4a2-d34f-4cde-afba-063797493a90
@@ -34,7 +51,6 @@ def shunt(infix):
 
 
 # Thompson's Construction
-# https://swtch.com/~rsc/regexp/regexp1.html
 # https://web.microsoftstream.com/video/5e2a482a-b1c9-48a3-b183-19eb8362abc9
 
 # Represents a state with two arrows, labelled by label
@@ -86,7 +102,7 @@ def compile(pofix):
             accept = state()
             nfa1.accept.edge1 = accept
             nfa2.accept.edge1 = accept
-            # Push the new NFA to the stack
+            # Push the NFA to the stack
             nfastack.append(nfa(initial, accept))
 
         elif c == '*':
@@ -114,10 +130,75 @@ def compile(pofix):
             initial.label = c
             initial.edge1 = accept
             # Push the new NFA to the stack
-            nfastack.append(nfa(initial, accept))
+            newnfa = nfa(initial, accept)
+            nfastack.append(newnfa)
 
     # nfastack should only have a single nfa on it at this point
     return nfastack.pop()
 
+def followes(state):
+    """Return the set of states that can be reached from state following E arrows"""
+    # Create a new set, with state as its only member
+    states = set()
+    states.add(state)
 
+    # Check if state has arrows labeled E from it
+    if state.label is None:
+        # Check if edge1 is a state
+        if state.edge1 is not None:
+            # if there's an edge1 follow it
+            states |= followes(state.edge1)
+        # Check if edge2 is a state
+        if state.edge2 is not None:
+            # if there's an edge1 follow it
+            states |= followes(state.edge2)
+
+    # Return the set of states
+    return states
+
+
+
+
+def match(infix, string):
+    """Matches string to infix regular expression"""
+    # Shunt and compile the regular expression
+    postfix = shunt(infix)
+    nfa = compile(postfix)
+
+    # Current set of states and next set of states
+    current = set()
+    next = set()
+
+    # Add the initial state to the current set
+    current |= followes(nfa.initial)
+
+    # Loop through the characters in the string
+    for s in string:
+        # Loop through the current set of states
+        for c in current:
+            # Check if that state is labelled s
+            if c.label == s:
+                # Add the edge1 state to the next set
+                next |= followes(c.edge1)
+        # Set current to next, and clear out next
+        current = next
+        next = set()
+
+    # Check if the accept state is in the set of current sets
+    return (nfa.accept in current)
+
+
+
+# command line input
+test = [(userin, userstring)]
+
+for infix, string in test:  
+    print(match(infix, string), infix, string)
+
+testInfixes = ["a.b.c", "a.(b|d).c*", "(a.(b|d))*", "a.(b.b)*.c"]
+testStrings = ["", "abc", "abbc", "abba", "abcc", "abad", "abbbc"]
+
+for i in testInfixes:
+    for s in testStrings:
+        print(match(i, s), i, s)
 
