@@ -1,3 +1,38 @@
+#Aodhan Mannion O'Donnell
+# g00314829
+
+# shunting yard algorithm 
+# https://web.microsoftstream.com/video/cfc9f4a2-d34f-4cde-afba-063797493a90
+
+
+def shunt(infix):
+    # special characters
+    specials = {'*': 50, '.': 40, '|': 30}
+    pofix = ""
+    stack = ""
+
+    for c in infix:
+        if c == '(':
+            stack = stack + c
+        elif c == ')':
+            while stack[-1] != '(':
+                pofix, stack = pofix + stack[-1], stack[:-1]
+            stack = stack[:-1]
+        elif c in specials:
+            while stack and specials.get(c, 0) <= specials.get(stack[-1], 0):
+                pofix, stack = pofix + stack[-1], stack[:-1]
+            stack = stack + c
+        else:
+            pofix = pofix + c
+
+    while stack:
+        pofix, stack = pofix + stack[-1], stack[:-1]
+        stack = stack[:-1]
+
+    return pofix
+
+
+
 # Thompson's Construction
 # https://swtch.com/~rsc/regexp/regexp1.html
 # https://web.microsoftstream.com/video/5e2a482a-b1c9-48a3-b183-19eb8362abc9
